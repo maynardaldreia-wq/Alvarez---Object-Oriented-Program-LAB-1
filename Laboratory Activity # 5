@@ -1,4 +1,4 @@
-public class SimpleHome {
+public class Home {
 
     // Parent class
     static class Device {
