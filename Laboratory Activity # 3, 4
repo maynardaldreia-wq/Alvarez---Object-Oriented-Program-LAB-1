@@ -1,0 +1,88 @@
+public class SimpleCoffeeShop {
+
+    // ===== CUSTOMER CLASS =====
+    static class Customer {
+        String name;
+        int points;
+        static int totalCustomers = 0;
+
+        // Constructors
+        Customer() {
+            name = "Anonymous";
+            points = 0;
+            totalCustomers++;
+        }
+
+        Customer(String name) {
+            this.name = name;
+            points = 0;
+            totalCustomers++;
+        }
+
+        Customer(String name, int points) {
+            this.name = name;
+            this.points = points;
+            totalCustomers++;
+        }
+
+        // Add points
+        void earnPoints(int value) {
+            points += value;
+        }
+
+        // Redeem reward (needs 100 points)
+        void redeem() {
+            if (points >= 100) {
+                points -= 100;
+                System.out.println(name + " redeemed a free drink!");
+            } else {
+                System.out.println(name + " does not have enough points.");
+            }
+        }
+
+        // Display info
+        void info() {
+            System.out.println("Name: " + name + " | Points: " + points);
+        }
+
+        // Static: Show total customers
+        static void showTotal() {
+            System.out.println("Total Customers: " + totalCustomers);
+        }
+    }
+
+    // ===== MAIN METHOD =====
+    public static void main(String[] args) {
+
+        Customer a = new Customer("Joseph", 200);
+        Customer b = new Customer("Peter");
+        Customer c = new Customer();
+
+        System.out.println("\n--- Initial Info ---");
+        a.info();
+        b.info();
+        c.info();
+        Customer.showTotal();
+
+        System.out.println("\n--- Peter earns points ---");
+        b.earnPoints(200);
+        b.earnPoints(20);
+
+        System.out.println("\n--- Redeeming Rewards ---");
+        a.redeem();
+        b.redeem();
+        c.redeem();
+
+        System.out.println("\n--- Updated Info ---");
+        a.info();
+        b.info();
+        c.info();
+        Customer.showTotal();
+
+        System.out.println("\n--- New Customer ---");
+        Customer d = new Customer("Diane");
+        d.earnPoints(50);
+        d.info();
+        Customer.showTotal();
+    }
+}

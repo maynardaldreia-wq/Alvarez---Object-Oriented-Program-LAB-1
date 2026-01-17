@@ -1,0 +1,48 @@
+public class SimpleHome {
+
+    // Parent class
+    static class Device {
+        String name;
+        String room;
+        String power = "OFF";
+
+        Device(String name, String room) {
+            this.name = name;
+            this.room = room;
+        }
+
+        void turnOn() {
+            power = "ON";
+        }
+
+        void show() {
+            System.out.println(name + " (" + room + ") - Power: " + power);
+        }
+    }
+
+    // Child class 1
+    static class Lamp extends Device {
+        Lamp(String name, String room) {
+            super(name, room);
+        }
+    }
+
+    // Child class 2
+    static class Fan extends Device {
+        Fan(String name, String room) {
+            super(name, room);
+        }
+    }
+
+    public static void main(String[] args) {
+
+        Lamp lamp = new Lamp("Desk Lamp", "Bedroom");
+        Fan fan = new Fan("Ceiling Fan", "Living Room");
+
+        lamp.turnOn();
+        fan.turnOn();
+
+        lamp.show();
+        fan.show();
+    }
+}
