@@ -1,0 +1,230 @@
+
+1.
+
+package model;
+
+public abstract class AbstractTask {
+    private int taskId;
+    private String taskName;
+    private String taskDescription;
+
+    public AbstractTask() {}
+
+    public AbstractTask(int taskId, String taskName, String taskDescription) {
+        this.taskId = taskId;
+        this.taskName = taskName;
+        this.taskDescription = taskDescription;
+    }
+
+    public abstract String getStatus();
+    public abstract void setStatus(String status);
+
+    public int getTaskId() { return taskId; }
+    public void setTaskId(int taskId) { this.taskId = taskId; }
+
+    public String getTaskName() { return taskName; }
+    public void setTaskName(String taskName) { this.taskName = taskName; }
+
+    public String getTaskDescription() { return taskDescription; }
+    public void setTaskDescription(String taskDescription) { this.taskDescription = taskDescription; }
+}
+
+
+
+2.
+
+package model;
+
+public class Task extends AbstractTask {
+    private String status; // DONE, ONGOING, or NOT STARTED
+
+    public Task() { super(); }
+
+    public Task(int taskId, String taskName, String taskDescription, String status) {
+        super(taskId, taskName, taskDescription);
+        this.status = status;
+    }
+
+    @Override
+    public String getStatus() {
+        return status;
+    }
+
+    @Override
+    public void setStatus(String status) {
+
+        if (status.equals("DONE") || status.equals("ONGOING") || status.equals("NOT STARTED")) {
+            this.status = status;
+        } else {
+            System.out.println("Invalid Status");
+        }
+    }
+}
+
+
+
+3. 
+
+package controller;
+
+import model.Task;
+import java.util.ArrayList;
+import java.util.List;
+
+public class TaskManager {
+    private List<Task> taskList;
+
+    public TaskManager() {
+        this.taskList = new ArrayList<>();
+    }
+
+    // Create
+    public void addTask(Task task) {
+        taskList.add(task);
+    }
+
+    // Read
+    public List<Task> getAllTasks() {
+        return taskList;
+    }
+
+    public int getNextId() {
+        if (taskList.isEmpty()) return 1;
+        return taskList.get(taskList.size() - 1).getTaskId() + 1;
+    }
+}
+
+
+
+4. 
+
+package ui;
+
+import controller.TaskManager;
+import model.Task;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+
+public class MainWindow extends JFrame {
+    private TaskManager manager;
+    private JTable taskTable;
+    private DefaultTableModel tableModel;
+    private TaskFormWindow formWindow; // Track instance to ensure only one opens
+
+    public MainWindow() {
+        manager = new TaskManager();
+        setTitle("Task Manager Application");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Setup Table
+        String[] columns = {"Task ID", "Task Name", "Task Description", "Status"};
+        tableModel = new DefaultTableModel(columns, 0);
+        taskTable = new JTable(tableModel);
+        add(new JScrollPane(taskTable), BorderLayout.CENTER);
+
+        // Add Task Button
+        JButton addButton = new JButton("Add Task");
+        addButton.addActionListener(e -> {
+            if (formWindow == null || !formWindow.isVisible()) {
+                formWindow = new TaskFormWindow(manager, this);
+                formWindow.setVisible(true);
+            }
+        });
+        add(addButton, BorderLayout.NORTH);
+    }
+
+    public void refreshTable() {
+        tableModel.setRowCount(0); // Clear table
+        for (Task t : manager.getAllTasks()) {
+            tableModel.addRow(new Object[]{t.getTaskId(), t.getTaskName(), t.getTaskDescription(), t.getStatus()});
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new MainWindow().setVisible(true));
+    }
+}
+
+
+
+5. 
+
+package ui;
+
+import controller.TaskManager;
+import model.Task;
+import javax.swing.*;
+import java.awt.*;
+
+public class TaskFormWindow extends JFrame {
+    public TaskFormWindow(TaskManager manager, MainWindow parent) {
+        setTitle("Task Input Form");
+        setSize(300, 400);
+        setLayout(new GridLayout(6, 1));
+
+        // i. Task ID (Non-editable)
+        JTextField idField = new JTextField(String.valueOf(manager.getNextId()));
+        idField.setEditable(false);
+
+        // ii. Task Name
+        JTextField nameField = new JTextField();
+
+        // iii. Task Description (Text Area)
+        JTextArea descArea = new JTextArea(3, 20);
+
+        // iv. Status (Combo Box)
+        String[] statuses = {"Not Started", "Ongoing", "Completed"};
+        JComboBox<String> statusBox = new JComboBox<>(statuses);
+
+        // Layout Components
+        add(new JLabel("Task ID:")); add(idField);
+        add(new JLabel("Task Name:")); add(nameField);
+        add(new JLabel("Description:")); add(new JScrollPane(descArea));
+        add(new JLabel("Status:")); add(statusBox);
+
+        // v. Save Button
+        JButton saveButton = new JButton("Save Task");
+        saveButton.addActionListener(e -> {
+            // Validation
+            if (nameField.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Name cannot be empty!");
+                return;
+            }
+
+            // Create Task and Pass to Manager
+            Task newTask = new Task(
+                Integer.parseInt(idField.getText()),
+                nameField.getText(),
+                descArea.getText(),
+                statusBox.getSelectedItem().toString().toUpperCase()
+            );
+
+            manager.addTask(newTask);
+            parent.refreshTable();
+            this.dispose(); // Close window
+        });
+
+        add(saveButton);
+    }
+}
+
+
+6.
+
+import controller.TaskManager;
+import ui.MainWindow;
+
+public class Main {
+    public static void main(String[] args) {
+        // a.Instantiate TaskManager
+        TaskManager manager = new TaskManager();
+
+        // b.Pass the instance into the UI
+        MainWindow mainWin = new MainWindow(manager);
+        mainWin.setVisible(true);
+    }
+}
+
